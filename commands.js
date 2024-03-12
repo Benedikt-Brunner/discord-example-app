@@ -1,45 +1,52 @@
 import 'dotenv/config';
-import { getRPSChoices } from './game.js';
-import { capitalize, InstallGlobalCommands } from './utils.js';
+import { InstallGlobalCommands } from './utils.js';
 
-// Get the game choices from game.js
-function createCommandChoices() {
-  const choices = getRPSChoices();
-  const commandChoices = [];
-
-  for (let choice of choices) {
-    commandChoices.push({
-      name: capitalize(choice),
-      value: choice.toLowerCase(),
-    });
-  }
-
-  return commandChoices;
-}
-
-// Simple test command
-const TEST_COMMAND = {
-  name: 'test',
-  description: 'Basic command',
-  type: 1,
-};
-
-// Command containing options
-const CHALLENGE_COMMAND = {
-  name: 'challenge',
-  description: 'Challenge to a match of rock paper scissors',
+const ADD_STUDENT_COMMAND = {
+  name: 'addstudent',
+  description: 'Add a student to the database',
   options: [
     {
       type: 3,
-      name: 'object',
-      description: 'Pick your object',
+      name: 'name',
+      description: 'Name of the student to add',
       required: true,
-      choices: createCommandChoices(),
+    },
+    {
+      type: 3,
+      name: 'emote',
+      description: 'Emote for the student to add',
+      required: true,
     },
   ],
   type: 1,
 };
 
-const ALL_COMMANDS = [TEST_COMMAND, CHALLENGE_COMMAND];
+const ADD_EXAM_COMMAND = {
+  name: 'addexam',
+  description: 'Add an exam to the database',
+  options: [
+    {
+      type: 3,
+      name: 'subject',
+      description: 'Name of the exam to add',
+      required: true,
+    },
+    {
+      type: 3,
+      name: 'date',
+      description: 'Date of the exam to add (YYYY-MM-DD)',
+      required: true,
+    },
+  ],
+  type: 1,
+};
+
+const GET_EXAMS_COMMAND = {
+  name: 'getexams',
+  description: 'Get all exams from the database',
+  type: 1,
+};
+
+const ALL_COMMANDS = [ADD_STUDENT_COMMAND, ADD_EXAM_COMMAND, GET_EXAMS_COMMAND];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
