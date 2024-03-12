@@ -34,7 +34,6 @@ async function formatExams(exams) {
 
   for (const exam of exams) {
     const emotes = await getStudentsWritingExam(db, exam.id);
-    console.log(emotes);
     const emotesString = emotes.map((emote) => emote.emote).join(' ');
     const date = new Date(exam.date);
     const formattedDate = date.toLocaleDateString("de-DE", {  month: 'numeric', day: 'numeric' }).slice(0, -1);
