@@ -8,10 +8,10 @@ import {
   ButtonStyleTypes,
 } from 'discord-interactions';
 import { VerifyDiscordRequest } from './utils.js';
-import { openDb, setupDb, addStudent, getStudents, addExam, getExams, addStudentToExam, getStudentsWritingExam, removeExam } from './db.js';
+import { openDb, setupDb, addStudent, getStudents, addExam, getExams, addStudentToExam, getStudentsWritingExam, removeExam, getExamsForStudent, getStudent } from './db.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 6476;
 // Parse request body and verifies incoming requests using discord-interactions package
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
 
@@ -50,6 +50,22 @@ async function formatExams(exams) {
   return formatted;
 }
 
+function formatExamsForStudent(exams, student) {
+  let formatted = `---- Exams for ${student.name} ----\n`;
+
+  console.log(exams);
+  for (const exam of exams) {
+    console.log(exam);
+    const date = new Date(exam.date);
+    const formattedDate = date.toLocaleDateString("de-DE", {  month: 'numeric', day: 'numeric' }).slice(0, -1);
+
+    formatted += `- ${exam.subject} ${student.emote}: ${formattedDate}\n`;
+  }
+
+  return formatted;
+}
+
+
 function formatStudentsForExamSelect(students) {
   return students.map((student) => ({
     label: student.name + ' ' + student.emote,
@@ -84,6 +100,18 @@ app.post('/interactions', async function (req, res) {
         type: InteractionResponseType.UPDATE_MESSAGE,
         data: {
           content: 'Exam added',
+          components: [],
+        },
+      });
+    }
+
+    if (custom_id === 'student_spec_exam_select') {
+      const exams = await getExamsForStudent(db, values[0]);
+      const student = await getStudent(db, values[0]);
+      return res.send({
+        type: InteractionResponseType.UPDATE_MESSAGE,
+        data: {
+          content: formatExamsForStudent(exams, student),
           components: [],
         },
       });
@@ -130,7 +158,7 @@ app.post('/interactions', async function (req, res) {
                 type: MessageComponentTypes.STRING_SELECT,
                 custom_id: "student_select_" + id,
                 options: studentsOptions,
-                placeholder: 'Select a student',
+                placeholder: 'Select all students that write the exam',
                 min_values: 1,
                 max_values: studentsOptions.length,
                 required: true,
@@ -145,6 +173,38 @@ app.post('/interactions', async function (req, res) {
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           content: await formatExams(await getExams(db)),
+        },
+      });
+    }
+
+    if (name === 'getstudents') {
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: formatStudents(await getStudents(db)),
+        },
+      });
+    }
+
+    if (name === 'getexamsforstudent') {
+      const studentsOptions = formatStudentsForExamSelect(await getStudents(db));
+
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: 'Select a student',
+          components: [{
+              type: MessageComponentTypes.ACTION_ROW,
+              components: [{
+                type: MessageComponentTypes.STRING_SELECT,
+                custom_id: "student_spec_exam_select",
+                options: studentsOptions,
+                placeholder: 'Select all students that write the exam',
+                min_values: 1,
+                max_values: 1,
+                required: true,
+              }]
+            }]
         },
       });
     }

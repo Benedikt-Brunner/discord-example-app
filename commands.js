@@ -47,6 +47,18 @@ const GET_EXAMS_COMMAND = {
   type: 1,
 };
 
-const ALL_COMMANDS = [ADD_STUDENT_COMMAND, ADD_EXAM_COMMAND, GET_EXAMS_COMMAND];
+const GET_STUDENTS_COMMAND = {
+  name: 'getstudents',
+  description: 'Get all students from the database',
+  type: 1,
+};
+
+const GET_EXAMS_FOR_STUDENT_COMMAND = {
+  name: 'getexamsforstudent',
+  description: 'Get all exams for a student from the database',
+  type: 1,
+};
+
+const ALL_COMMANDS = [ADD_STUDENT_COMMAND, ADD_EXAM_COMMAND, GET_EXAMS_COMMAND, GET_STUDENTS_COMMAND, GET_EXAMS_FOR_STUDENT_COMMAND];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);

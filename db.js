@@ -34,6 +34,10 @@ export async function getStudents (db) {
   return db.all('SELECT * FROM Student')
 }
 
+export async function getStudent (db, id) {
+  return db.get('SELECT * FROM Student WHERE id = ?', id)
+}
+
 export async function getExams (db) {
     return db.all('SELECT * FROM Exam')
 }
@@ -42,6 +46,11 @@ export async function getStudentsWritingExam (db, exam) {
     return db.all('SELECT (emote) FROM StudentWritingExam LEFT JOIN Student ON Student.id = StudentWritingExam.student_id WHERE exam_id = ?', exam)
 }
 
+export async function getExamsForStudent (db, student) {
+    return db.all('SELECT * FROM StudentWritingExam LEFT JOIN Exam ON Exam.id = StudentWritingExam.exam_id WHERE student_id = ?', student)
+}
+
 export async function removeExam (db, exam) {
     await db.run('DELETE FROM Exam WHERE id = ?', exam)
+    await db.run('DELETE FROM StudentWritingExam WHERE exam_id = ?', exam)
 }
