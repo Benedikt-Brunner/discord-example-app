@@ -5,13 +5,13 @@ import { open } from 'sqlite'
 // you would have to import / invoke this in another file
 export async function openDb () {
   return open({
-    filename: '/home/container/discord-example-app/db/database.db',
+    filename: './db/database.db',
     driver: sqlite3.Database
   })
 }
 
 export async function setupDb (db) {
-    const migration = fs.readFileSync('/home/container/discord-example-app/migrations/init.sql', 'utf-8');
+    const migration = fs.readFileSync('./migrations/init.sql', 'utf-8');
 
     await db.exec(migration);
 }
